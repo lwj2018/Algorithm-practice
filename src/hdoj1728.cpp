@@ -1,111 +1,62 @@
 #include <stdio.h>
+#include <queue>
 const int MAX_M = 100;
 const int MAX_N = 100;
 int map[MAX_M][MAX_N] = {0};
 int color[MAX_M][MAX_N] = {0};
-int q[MAX_M*MAX_N][4] = {0};
-int start = 0;
-int end = 0;
 using namespace std;
 
-/* direction flag:
-0 left
-1 right
-2 up
-3 down
-*/
-
-void push(int x,int y,int turn,int direction)
+typedef struct point
 {
-    q[end][0] = x;
-    q[end][1] = y;
-    q[end][2] = turn;
-    q[end][3] = direction;
-    end = end+1;
-    if(end>=MAX_M*MAX_N) end = 0;
-}
+    int x,y,turn;
+}point;
 
-void pop()
-{
-    start = start+1;
-    if(start>=MAX_M*MAX_N) start = 0;
-}
-
-bool isEmpty()
-{
-    return (start==end);
-}
-
-void clear()
-{
-    for (int i = 0; i < MAX_N*MAX_M; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            q[i][j] = 0;
-        }
-        
-    }
-    
-}
+int direction[4][2] = {-1,0,1,0,0,-1,0,1};
 
 bool bfs(int m,int n,int x1,int y1,int x2,int y2,int maxTurn)
 {
-    push(x1,y1,-1,-1);
-    while(!isEmpty())
+    queue<point> q;
+    point start,end;
+    start.x = x1;
+    start.y = y1;
+    start.turn = -1;
+    color[y1][x1] = 1;
+    q.push(start);
+    while(q.size()!=0)
     {
-        int x = q[start][0];
-        int y = q[start][1];
-        int turn = q[start][2];
-        int direction = q[start][3];
-        pop();
-        color[y][x] = 1;
-        if (x==x2&&y==y2)
+        point cur = q.front();
+        q.pop();
+        if (cur.turn>maxTurn)
+        {
+            continue;
+        }
+        
+        if (cur.x==x2&&cur.y==y2)
         {
             return true;
         }
-        
+        end.turn = cur.turn+1;
         for (int i = 0; i < 4; i++)
         {
-            int new_direction = i;
-            int new_turn = turn;
-            if(new_direction!=direction)
+            int nx = cur.x;
+            int ny = cur.y;
+            while (1)
             {
-                new_turn = turn+1;
-                if (new_turn > maxTurn)
+                nx += direction[i][0];
+                ny += direction[i][1];
+                if(map[ny][nx]==-1||nx<0||nx>=n||ny<0||ny>=m)
                 {
-                    continue;
+                    break;
                 }
-                
+                if (color[ny][nx]==0)
+                {
+                    color[ny][nx]=1;
+                    end.x = nx;
+                    end.y = ny;
+                    q.push(end);
+                }
             }
-            int new_x = x;
-            int new_y = y;
-            switch (i)
-            {
-            case 0:
-                new_x = x-1;
-                break;
-            case 1:
-                new_x = x+1;
-                break;
-            case 2:
-                new_y = y-1;
-                break;
-            case 3:
-                new_y = y+1;
-                break;            
-            default:
-                break;
-            }
-            if (map[new_y][new_x]==-1||color[new_y][new_x]==1)
-            {
-                continue;
-            }
-            if (new_x<0||new_x>=n||new_y<0||new_y>=m)
-            {
-                continue;
-            }
-            push(new_x,new_y,new_turn,new_direction);
+            
         }
     }
     return false;
@@ -129,8 +80,6 @@ void readData(int& m,int &n,int& maxTurn,int& x1,int& y1,int& x2,int& y2)
             }
             // clear color
             color[i][j] = 0;
-            // clear queue
-            clear();
         }
         getchar();
     }
