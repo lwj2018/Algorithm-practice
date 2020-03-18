@@ -5,49 +5,21 @@ using namespace std;
 
 const int MAX_N = 10000;
 const int MAX_M = 10000;
-float h[MAX_N+1] = {0};
+double h[MAX_N+1] = {0};
 int a[MAX_M] = {0};
-vector<int> select[MAX_N+1];
-float p[MAX_M] = {0}; 
+double p[MAX_M] = {0};
 
-bool isIn(vector<int> v,int x)
+double solve(int n,int m)
 {
-    for(int i=0;i<v.size();i++)
-    {
-        if(v[i]==x)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-float solve(int n,int m)
-{
-    for(int i=1;i<=n;i++)
-    {
-        int sj = m;
-        for(int j=0;j<m;j++)
-        {
-            if(a[j]<=i&&!isIn(select[i-a[j]],j))
-            {
-                if(p[j]*h[i-a[j]]<h[i])
-                {
-                    h[i] = p[j]*h[i-a[j]];
-                    sj = j;
-                }
-            }
-        }
-        // copy
-        select[i] = select[i-a[sj]];
-        select[i].push_back(sj);
-    }
-    return 100*(1-h[n]);
+    for(int i=0;i<m;i++)
+        for (int j = n; j >= a[i]; j--)
+            h[j] = max(p[i]+h[j-a[i]]-p[i]*h[j-a[i]],h[j]);
+    return 100*(h[n]);
 }
 
 bool readData(int& n,int &m)
 {
-    cin>>n>>m;
+    scanf("%d%d",&n,&m);
     if(n==0&&m==0)
     {
         return false;
@@ -56,18 +28,12 @@ bool readData(int& n,int &m)
     {
         for(int i=0;i<m;i++)
         {
-            cin>>a[i]>>p[i];
-        }
-        for(int i=0;i<m;i++)
-        {
-            p[i] = 1-p[i];
+            scanf("%d%lf",&a[i],&p[i]);
         }
         // clear
         for(int i=0;i<=n;i++)
         {
-            h[i] = 1;
-            vector<int> v;
-            select[i] = v;
+            h[i] = 0;
         }
     }
     return true;
@@ -82,6 +48,6 @@ int main()
         {
             break;
         }
-        printf("%.1f%%",solve(n,m));
+        printf("%.1lf%%\n",solve(n,m));
     }
 }
