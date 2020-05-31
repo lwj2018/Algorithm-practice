@@ -1,3 +1,4 @@
+
 /*
 101. 对称二叉树
 给定一个二叉树，检查它是否是镜像对称的。
@@ -17,14 +18,14 @@ struct TreeNode {
 class Solution {
 public:
     bool isInverse(TreeNode* left,TreeNode* right) {
-        if(left&&!right) return false;
-        if(!left&&!right) return false;
         if(!left&&!right) return true;
+        if(!left||!right) return false;
         if(left->val!=right->val) return false;
-        return isInverse(left->right,right->left) && isInverse(left->left,right->right);
+        return isInverse(left->left,right->right) && isInverse(left->right,right->left);
     }
     bool isSymmetric(TreeNode* root) {
         if(!root) return true;
         return isInverse(root->left,root->right);
     }
 };
+
